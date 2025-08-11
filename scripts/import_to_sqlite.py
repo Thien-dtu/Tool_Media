@@ -68,12 +68,14 @@ def load_ig_user_stories_report(conn: sqlite3.Connection) -> None:
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS ig_user_stories_report (
+            id INTEGER PRIMARY KEY,
             apiName TEXT,
             url TEXT,
             username TEXT,
             total INTEGER,
             have INTEGER,
             nohave INTEGER,
+            ids TEXT,
             time TEXT,
             pages INTEGER,
             timestamp TEXT
@@ -92,6 +94,8 @@ def load_ig_user_stories_report(conn: sqlite3.Connection) -> None:
         api = obj.get("apiName")
         timestamp = obj.get("timestamp")
         for entry in obj.get("report", []):
+            ids = entry.get("ids")
+            ids_json = json.dumps(ids) if ids is not None else None
             rows.append(
                 (
                     api,
@@ -100,6 +104,7 @@ def load_ig_user_stories_report(conn: sqlite3.Connection) -> None:
                     entry.get("total"),
                     entry.get("have"),
                     entry.get("nohave"),
+                    ids_json,
                     entry.get("time"),
                     entry.get("pages"),
                     timestamp,
@@ -107,9 +112,9 @@ def load_ig_user_stories_report(conn: sqlite3.Connection) -> None:
             )
     conn.executemany(
         """
-        INSERT OR REPLACE INTO ig_user_stories_report
-        (apiName, url, username, total, have, nohave, time, pages, timestamp)
-        VALUES (?,?,?,?,?,?,?,?,?)
+        INSERT INTO ig_user_stories_report
+        (apiName, url, username, total, have, nohave, ids, time, pages, timestamp)
+        VALUES (?,?,?,?,?,?,?,?,?,?)
         """,
         rows,
     )
