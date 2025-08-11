@@ -41,3 +41,7 @@ note_instagram.txt
 
 # Test files
 followings.json
+
+# SQLite databases
+data/*.db
+
